@@ -24,6 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'toggle_led = turtlebot_core.toggle_led:main',
+            'control_led = turtlebot_core.control_led:main',
         ],
     },
 )
