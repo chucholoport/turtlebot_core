@@ -9,6 +9,6 @@ def generate_launch_description():
             executable='teleop_twist_keyboard',  # teleop_joystick
             name='teleop_twist_keyboard',
             output='screen',
-            prefix='xterm -e'
+            prefix='screen -S teleop -dm bash -c',
         ),
     ])
