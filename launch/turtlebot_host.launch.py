@@ -12,16 +12,24 @@ def generate_launch_description():
         'remote_rplidar.launch.py',
     ])
 
-    chassis_launch = PathJoinSubstitution([
-        ThisLaunchFileDir(),
-        'remote_chassis.launch.py',
-    ])
+    # TODO: Student should create a sublaunch for the turtlebot main behavior and include it here. 
+    #       The sublaunch should be named remote_chassis.launch.py and should contain the movement node.
+    #        
+    #       Currently, the remte_chassis.launch.py file contains the teleop_twist_keyboard node, 
+    #       but it is not usable. Replace the teleop_twist_keyboard node with the movement node 
+    #       that you created in the previous step.
+
+    # chassis_launch = PathJoinSubstitution([
+    #     ThisLaunchFileDir(),
+    #     'remote_chassis.launch.py',
+    # ])
 
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(rplidar_launch)
         ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(chassis_launch)
-        ),
+        
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(chassis_launch)
+        # ),
     ])
