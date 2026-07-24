@@ -2,6 +2,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -9,8 +10,13 @@ def generate_launch_description():
     # ---------------------------------------------------------------------
     # Argumentos configurables (se pueden sobrescribir desde la linea de
     # comandos, p.ej: ros2 launch turtlebot_core webcam.launch.py video_device:=/dev/video2)
+    # edge.launch.py los inyecta desde robot.ini.
     # ---------------------------------------------------------------------
     video_device = LaunchConfiguration('video_device')
+    pixel_format = LaunchConfiguration('pixel_format')
+    image_width = LaunchConfiguration('image_width')
+    image_height = LaunchConfiguration('image_height')
+    framerate = LaunchConfiguration('framerate')
     parent_frame = LaunchConfiguration('parent_frame')
     camera_frame = LaunchConfiguration('camera_frame')
     optical_frame = LaunchConfiguration('optical_frame')
@@ -20,10 +26,30 @@ def generate_launch_description():
         default_value='/dev/video0',
         description='Dispositivo V4L2 de la webcam',
     )
+    declare_pixel_format = DeclareLaunchArgument(
+        'pixel_format',
+        default_value='yuyv',
+        description='Formato de pixel: yuyv o mjpeg2rgb (segun la camara)',
+    )
+    declare_image_width = DeclareLaunchArgument(
+        'image_width',
+        default_value='640',
+        description='Ancho de la imagen en pixeles',
+    )
+    declare_image_height = DeclareLaunchArgument(
+        'image_height',
+        default_value='480',
+        description='Alto de la imagen en pixeles',
+    )
+    declare_framerate = DeclareLaunchArgument(
+        'framerate',
+        default_value='30.0',
+        description='Cuadros por segundo',
+    )
     declare_parent_frame = DeclareLaunchArgument(
         'parent_frame',
         default_value='base_link',
-        # Si visualizas solo con el lidar, puedes usar 'laser' como parent_frame
+        # Si visualizas solo con el rplidar, puedes usar 'laser' como parent_frame
         description='Frame padre al que se ancla la camara en el arbol TF',
     )
     declare_camera_frame = DeclareLaunchArgument(
@@ -50,10 +76,10 @@ def generate_launch_description():
         parameters=[{
             'video_device': video_device,
             'frame_id': optical_frame,
-            'pixel_format': 'yuyv',      # ajusta a 'mjpeg2rgb' si tu camara lo requiere
-            'image_width': 640,
-            'image_height': 480,
-            'framerate': 30.0,
+            'pixel_format': pixel_format,
+            'image_width': ParameterValue(image_width, value_type=int),
+            'image_height': ParameterValue(image_height, value_type=int),
+            'framerate': ParameterValue(framerate, value_type=float),
             'camera_name': 'webcam',
         }],
     )
@@ -105,6 +131,10 @@ def generate_launch_description():
 
     return LaunchDescription([
         declare_video_device,
+        declare_pixel_format,
+        declare_image_width,
+        declare_image_height,
+        declare_framerate,
         declare_parent_frame,
         declare_camera_frame,
         declare_optical_frame,

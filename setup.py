@@ -10,7 +10,7 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name, ['package.xml', 'robot.ini']),
         (f'share/{package_name}/launch', glob('launch/*.launch.py')),
         (f'share/{package_name}/rviz', glob('rviz/*.rviz')),
     ],
@@ -29,6 +29,7 @@ setup(
         'console_scripts': [
             'toggle_led = turtlebot_core.toggle_led:main',
             'control_led = turtlebot_core.control_led:main',
+            'vision_bw = turtlebot_core.vision_bw:main',
         ],
     },
 )
