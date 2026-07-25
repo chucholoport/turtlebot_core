@@ -1,0 +1,19 @@
+# Bloque RViz: imagen procesada por vision_bw (/image_processed) — display Image.
+# Es la salida del nodo del alumno (de fabrica, la camara en blanco y negro).
+# NO es un .rviz completo: es una lista de Displays que host.launch.py fusiona
+# dentro de turtlebot.rviz cuando el robot tiene webcam (robot.ini [devices] webcam=true),
+# junto al nodo vision_bw que lo publica.
+- Class: rviz_default_plugins/Image
+  Enabled: true
+  Max Value: 1
+  Median window: 5
+  Min Value: 0
+  Name: Image (procesada)
+  Normalize Range: true
+  Topic:
+    Depth: 5
+    Durability Policy: Volatile
+    History Policy: Keep Last
+    Reliability Policy: Reliable
+    Value: /image_processed
+  Value: true

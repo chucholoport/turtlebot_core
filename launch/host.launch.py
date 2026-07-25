@@ -27,9 +27,15 @@ PKG = 'turtlebot_core'
 #  realmente tiene, leyendo el MISMO robot.ini que usa edge.launch.py:
 #
 #     [devices] rplidar = true  -> agrega el bloque rplidar.rviz (LaserScan)
-#     [devices] webcam  = true  -> agrega el bloque camera.rviz  (Image + Camera)
+#     [devices] webcam  = true  -> agrega el bloque camera.rviz    (Image + Camera)
+#                                  + el bloque processed.rviz      (Image procesada)
+#                                  + lanza el nodo vision_bw del alumno
 #
 #  Asi RViz solo muestra lo que existe, sin displays "muertos".
+#
+#  vision_bw corre AQUI (en la PC), no en la SBC: el edge solo publica
+#  /image_raw y este nodo lo procesa -> /image_processed. Asi el trabajo
+#  pesado de OpenCV no carga al robot.
 #
 #  [platform] target = sbc | host:
 #    sbc  (default) -> SOLO RViz. La captura corre en la SBC (edge.launch.py),
@@ -66,12 +72,18 @@ def _launch_setup(context, *args, **kwargs):
     cfg.read(config_file)
 
     target = cfg.get('platform', 'target', fallback='sbc')
+    webcam_on = cfg.getboolean('devices', 'webcam', fallback=False)
 
     added = []
     for key, fname in FEATURE_BLOCKS:
         if cfg.getboolean('devices', key, fallback=False):
             displays.extend(_load_yaml(os.path.join(rviz_dir, fname)))
             added.append(key)
+
+    # La imagen procesada solo existe si hay camara (la publica vision_bw, abajo)
+    if webcam_on:
+        displays.extend(_load_yaml(os.path.join(rviz_dir, 'processed.rviz')))
+        added.append('procesada')
 
     # 3) Escribir la escena ensamblada (fallback a /tmp si share es de solo lectura)
     out_path = os.path.join(rviz_dir, 'turtlebot.rviz')
@@ -95,6 +107,17 @@ def _launch_setup(context, *args, **kwargs):
             arguments=['-d', out_path],
         ),
     ]
+
+    # ---- Nodo de vision del alumno (en la PC): /image_raw -> /image_processed ----
+    # Solo tiene sentido si hay camara. Sirve igual en target=sbc (recibe
+    # /image_raw del robot por red) o target=host (captura local, ver abajo).
+    if webcam_on:
+        actions.append(Node(
+            package=PKG,
+            executable='vision_bw',
+            name='vision_bw',
+            output='screen',
+        ))
 
     # ---- Modo host: pruebas locales -> desplegar tambien la captura ----
     # La captura (edge.launch.py) SOLO se incluye aqui; edge nunca incluye a
